@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../src/registry/",
+  "sources": ["CohortRegistry.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAuBA;;;;;;;;;;MAEA,AAAA,eAKC;;;;;cAL8B,iBAA0B;cAAE,YAAqB;;;;;;;;;;;;;;;;;;;;;;;;;yCAAjD,iBAA0B,+BAAE,YAAqB;;;;;;;;;iDAAjD,iBAA0B;iDAAE,YAAqB;;;OAK/E;;;;GAPe;EAAhB;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAJA;;;;;;;;;yEAAoC;IACpC;;;;;;;;;;yEAAyD;IACzD;;;;;;;;;;yEAA4D;;;;;;;GAE5C;EAEhB,AAAA,kBAKC,4BAL8B,iBAA0B,EAAE,YAAqB;;UACxE,OAAgC;;;;;+CAAxB;;;;;;;;;;;oHAAY;IAC1B;;;;;;;;;;2HAAwB,OAAK;;;2HAAW,iBAAe;;;wEAAvC;IAChB;;;;;;;;;;2HAA2B,OAAK;;;2HAAW,YAAU;;;wEAAlC;UACnB,KAAY;IAAZ;;;;;;;;;;6FAAA,KAAY;;;;wEAAA;;GACb;;;;;;;;;;;;;;;;IAXD;qCAAA;;;;;;;;;;;0GAAoC;KAAA;IACpC;;;;;uCAAA;;;;;;;;;;;;;;;;4GAAyD;;;;;;uCAAzD;;;;;;;;;;;;4GAAyD;;;;;;;;;;;;;;uCAAzD;;;;;;;;;;;;;;;4GAAyD;;;;;;;;;;;;;;uCAAzD;;;;;;;;;;;;;;;;;4GAAyD;;;;;;;;;KAAA;IACzD;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA4D;;;;;;uCAA5D;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;;;;;;uCAA5D;;;;;;;;;;;;;;;;;4GAA4D;;;;;;;;;KAAA;;;;;;;;;;"
+}
