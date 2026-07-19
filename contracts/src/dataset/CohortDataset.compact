@@ -1,0 +1,135 @@
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ─────────────────────────────────────────────────────────────────────────
+// CohortDataset — Phase 2: real privacy model.
+//
+// One instance of this contract is deployed per dataset (registered with
+// CohortRegistry — see ../registry/CohortRegistry.compact). This phase
+// replaces Phase 1's plain public counters with the actual privacy design
+// from docs/ARCHITECTURE.md §4/§5/§10:
+//
+//   - an organization's identity never touches the chain — only a
+//     deterministic, per-dataset, per-action nullifier does (join and
+//     submit each get their own nullifier namespace, so joining doesn't
+//     let you infer someone's later submission or vice versa)
+//   - the organization's actual answer is supplied as a private witness,
+//     never as a public transaction argument
+//   - the chain only ever observes: "some org proved it hadn't
+//     joined/submitted before, and incremented exactly one valid bucket"
+//
+// The survey schema is still hardcoded, as it was in Phase 1 — deploy-time-
+// configurable schemas remain Phase 3 work.
+// ─────────────────────────────────────────────────────────────────────────
+
+export enum DatasetState { OPEN, FROZEN, REVEALED }
+
+struct SurveyAnswers {
+  salaryBand: Uint<8>;
+  companySize: Uint<8>;
+}
+
+export ledger state: DatasetState;
+export ledger datasetId: Bytes<32>;
+export ledger threshold: Uint<32>;
+
+export ledger participantCount: Counter;
+export ledger responseCount: Counter;
+
+// Separate nullifier namespaces: a join nullifier and a submit nullifier
+// are unlinkable to each other even though they're derived from the same
+// underlying secret, because each is hashed with its own domain tag.
+export ledger joinNullifiers: Set<Bytes<32>>;
+export ledger submitNullifiers: Set<Bytes<32>>;
+
+// Demo schema, field 0: "Base salary band" (4 options)
+export ledger salaryBand0: Counter; // < $100k
+export ledger salaryBand1: Counter; // $100k - $150k
+export ledger salaryBand2: Counter; // $150k - $200k
+export ledger salaryBand3: Counter; // > $200k
+
+// Demo schema, field 1: "Company size" (3 options)
+export ledger companySize0: Counter; // 1-50 employees
+export ledger companySize1: Counter; // 51-500 employees
+export ledger companySize2: Counter; // 500+ employees
+
+// The dataset's own id, supplied by the deployer at construction time.
+// Folded into every nullifier so a leaked/reused secret can't be replayed
+// across datasets, matching the architecture's "dataset-scoped nullifier"
+// design even though contract-instance isolation would already prevent
+// cross-dataset collisions on its own.
+witness configuredDatasetId(): Bytes<32>;
+
+// The organization's private identity secret. Verification is mocked
+// (see docs/ARCHITECTURE.md §5) — this is whatever the org's wallet holds
+// locally, never transmitted.
+witness localSecretKey(): Bytes<32>;
+
+// The organization's actual survey response. Supplied locally and never
+// appears as a public transaction argument.
+witness surveyAnswers(): SurveyAnswers;
+
+constructor() {
+  state = DatasetState.OPEN;
+  datasetId = disclose(configuredDatasetId());
+  threshold = 3;
+}
+
+export circuit join(): [] {
+  assert(state == DatasetState.OPEN, "dataset is not open for joining");
+
+  const nullifier = disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "cohort:join"), datasetId, localSecretKey()]));
+  assert(!joinNullifiers.member(nullifier), "organization has already joined this dataset");
+  joinNullifiers.insert(nullifier);
+
+  participantCount.increment(1);
+}
+
+export circuit submit(): [] {
+  assert(state == DatasetState.OPEN, "dataset is not open for submissions");
+
+  const joinNullifier = disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "cohort:join"), datasetId, localSecretKey()]));
+  assert(joinNullifiers.member(joinNullifier), "organization must join before submitting");
+
+  const submitNullifier = disclose(persistentHash<Vector<3, Bytes<32>>>([pad(32, "cohort:submit"), datasetId, localSecretKey()]));
+  assert(!submitNullifiers.member(submitNullifier), "organization has already submitted a response");
+  submitNullifiers.insert(submitNullifier);
+
+  const answers = surveyAnswers();
+  const band = disclose(answers.salaryBand);
+  const size = disclose(answers.companySize);
+  assert(band < 4, "invalid salary band option");
+  assert(size < 3, "invalid company size option");
+
+  if (band == 0) {
+    salaryBand0.increment(1);
+  } else if (band == 1) {
+    salaryBand1.increment(1);
+  } else if (band == 2) {
+    salaryBand2.increment(1);
+  } else {
+    salaryBand3.increment(1);
+  }
+
+  if (size == 0) {
+    companySize0.increment(1);
+  } else if (size == 1) {
+    companySize1.increment(1);
+  } else {
+    companySize2.increment(1);
+  }
+
+  responseCount.increment(1);
+}
+
+export circuit freeze(): [] {
+  assert(state == DatasetState.OPEN, "dataset must be open to freeze");
+  assert(responseCount as Uint<32> >= threshold, "participation threshold not reached");
+  state = DatasetState.FROZEN;
+}
+
+export circuit revealResults(): [] {
+  assert(state == DatasetState.FROZEN, "dataset must be frozen before revealing results");
+  state = DatasetState.REVEALED;
+}

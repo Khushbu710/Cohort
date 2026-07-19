@@ -1,0 +1,28 @@
+{
+  "slug": "software-compensation",
+  "title": "Software Compensation Benchmark",
+  "description": "Anonymous, aggregated compensation bands for software organizations — the Phase 1 demo dataset. Cohort itself is dataset-agnostic; this is one instance of the protocol, not the product.",
+  "category": "Compensation",
+  "threshold": 3,
+  "fields": [
+    {
+      "id": "salaryBand",
+      "label": "Base salary band",
+      "options": [
+        { "id": "0", "label": "< $100k" },
+        { "id": "1", "label": "$100k - $150k" },
+        { "id": "2", "label": "$150k - $200k" },
+        { "id": "3", "label": "> $200k" }
+      ]
+    },
+    {
+      "id": "companySize",
+      "label": "Company size",
+      "options": [
+        { "id": "0", "label": "1-50 employees" },
+        { "id": "1", "label": "51-500 employees" },
+        { "id": "2", "label": "500+ employees" }
+      ]
+    }
+  ]
+}

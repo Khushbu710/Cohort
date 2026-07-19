@@ -1,0 +1,25 @@
+{
+  "networkId": "Undeployed",
+  "indexer": "http://127.0.0.1:8088/api/v3/graphql",
+  "indexerWS": "ws://127.0.0.1:8088/api/v3/graphql/ws",
+  "node": "http://127.0.0.1:9944",
+  "proofServer": "http://127.0.0.1:6300",
+  "registryAddress": "405ee15437d3afc52a4f5be78bbc5f97b9ad158f65bebf317d1340f526730cd9",
+  "datasets": [
+    {
+      "slug": "software-compensation",
+      "contractAddress": "3ccc9d1dcde3d5867cfe0d191354fbd3558876ca575cea6c27b8fdb4d69cc7ef",
+      "schemaHash": "5651f1b202f1c0269d7ef8bf0dad252890c491123ec94181d08fcaec00e411d5"
+    },
+    {
+      "slug": "software-compensation",
+      "contractAddress": "b0387a1682368252242ead628f76e00c4141c69010fa585fa2708942cf9f412e",
+      "schemaHash": "5651f1b202f1c0269d7ef8bf0dad252890c491123ec94181d08fcaec00e411d5"
+    },
+    {
+      "slug": "software-compensation",
+      "contractAddress": "94dce4bd72650e3e501a24ed09e3106845a0880ee4de4ed0cfb826c57dcef7a4",
+      "schemaHash": "5651f1b202f1c0269d7ef8bf0dad252890c491123ec94181d08fcaec00e411d5"
+    }
+  ]
+}

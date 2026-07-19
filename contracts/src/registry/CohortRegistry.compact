@@ -1,0 +1,31 @@
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ─────────────────────────────────────────────────────────────────────────
+// CohortRegistry — Phase 2.
+//
+// A singleton contract that makes deployed CohortDataset instances
+// discoverable. See docs/ARCHITECTURE.md §4: heavy/human-readable dataset
+// content (title, description, option labels) intentionally stays off
+// chain in packages/shared/datasets/*.json; this registry only records
+// what needs to be trustworthy on chain — a dataset's contract address and
+// a hash of its schema, so a client can verify the off-chain JSON it's
+// displaying actually matches what the dataset contract was deployed with.
+//
+// No privacy here by design: which datasets exist, and where, is meant to
+// be fully public. Nothing in this contract touches organization identity.
+// ─────────────────────────────────────────────────────────────────────────
+
+export ledger datasetCount: Counter;
+export ledger datasetAddresses: Map<Uint<32>, Bytes<32>>;
+export ledger datasetSchemaHashes: Map<Uint<32>, Bytes<32>>;
+
+constructor() {}
+
+export circuit registerDataset(contractAddress: Bytes<32>, schemaHash: Bytes<32>): [] {
+  const index = datasetCount as Uint<32>;
+  datasetAddresses.insert(index, disclose(contractAddress));
+  datasetSchemaHashes.insert(index, disclose(schemaHash));
+  datasetCount.increment(1);
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@cohort/contracts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Compact smart contracts for the Cohort protocol.",
+  "type": "module",
+  "scripts": {
+    "compact:build": "node ./scripts/compile.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "0.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

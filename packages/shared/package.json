@@ -1,0 +1,9 @@
+{
+  "name": "@cohort/shared",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared TypeScript types and dataset schema definitions used by both the frontend and contract deployment scripts.",
+  "type": "module",
+  "main": "./types/index.ts",
+  "types": "./types/index.ts"
+}
