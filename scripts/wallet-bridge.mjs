@@ -126,6 +126,7 @@ const server = http.createServer(async (req, res) => {
       );
       return;
     }
+    console.log(`[bridge] ${req.method} ${req.url} at ${new Date().toISOString()}`);
     if (req.url === "/balance" && req.method === "POST") {
       const { hexTx } = body;
       const unboundTx = ledger.Transaction.deserialize("signature", "proof", "pre-binding", Buffer.from(hexTx, "hex"));

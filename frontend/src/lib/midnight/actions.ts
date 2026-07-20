@@ -39,10 +39,17 @@ const witnesses: Witnesses<OrgPrivateState> = {
 // value here is inert for these calls.
 const UNUSED_DATASET_ID = new Uint8Array(32);
 
-const datasetZkConfigProvider = new FetchZkConfigProvider<DatasetCircuitId>(`${window.location.origin}/zk-config/dataset`);
+// The explicit fetchFunc override works around a real bug: FetchZkConfigProvider's
+// default `fetch` import (from cross-fetch) loses its `this` binding to `window`
+// under Vite's dev-time module serving, causing "Illegal invocation" — window.fetch
+// bound explicitly sidesteps it.
+const datasetZkConfigProvider = new FetchZkConfigProvider<DatasetCircuitId>(
+  `${window.location.origin}/zk-config/dataset`,
+  window.fetch.bind(window),
+);
 const datasetCompiledContract = CompiledContract.make<InstanceType<typeof Contract<OrgPrivateState>>>("cohortDataset", Contract).pipe(
   CompiledContract.withWitnesses(witnesses),
-  CompiledContract.withCompiledFileAssets("dataset"),
+  CompiledContract.withCompiledFileAssets(`${window.location.origin}/zk-config/dataset`),
 );
 
 async function getDatasetContract(walletProvider: MidnightWalletProvider, contractAddress: string, orgState: OrgPrivateState) {

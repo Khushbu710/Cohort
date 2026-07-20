@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const APOLLO_CJS_SUBPATHS = [
   '@apollo/client/core/core.cjs',
@@ -22,19 +23,22 @@ const APOLLO_CJS_SUBPATHS = [
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    wasm(),
+    topLevelAwait(),
+    // level (used by levelPrivateStateProvider) resolves to browser-level in
+    // the browser, which pulls in Node core modules (events, crypto, stream,
+    // util, ...) for EventEmitter/PBKDF2/etc that Vite otherwise externalizes
+    // for client builds (leaving them undefined at runtime and breaking e.g.
+    // `class X extends EventEmitter`). This polyfills the whole family in
+    // one place instead of aliasing each one individually.
+    nodePolyfills({ globals: { Buffer: true, global: true, process: true } }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // level (used by levelPrivateStateProvider) resolves to browser-level in
-      // the browser, which extends abstract-level, which imports Node's core
-      // `events` module for EventEmitter. Vite externalizes Node builtins for
-      // client builds by default (leaving them undefined at runtime), so
-      // without this alias `class X extends EventEmitter` fails with "Class
-      // extends value undefined is not a constructor" — point it at the
-      // `events` npm package (a real browser-compatible EventEmitter shim)
-      // instead of the externalized Node builtin.
-      events: 'events',
     },
   },
   optimizeDeps: {
@@ -75,7 +79,6 @@ export default defineConfig({
     // into the pre-bundle explicitly gives it proper CJS->ESM interop.
     include: [
       'object-inspect',
-      'buffer',
       '@subsquid/scale-codec',
       '@subsquid/util-internal-hex',
       '@subsquid/util-internal-json',

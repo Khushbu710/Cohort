@@ -57,18 +57,26 @@ function privateStateProviderFor(walletProvider: MidnightWalletProvider) {
   });
 }
 
+// The explicit fetchFunc override works around a real bug: FetchZkConfigProvider's
+// default `fetch` import (from cross-fetch) loses its `this` binding to `window`
+// under Vite's dev-time module serving, causing "Illegal invocation" — window.fetch
+// bound explicitly sidesteps it.
 const datasetZkConfigProvider = new FetchZkConfigProvider<"join" | "submit" | "freeze" | "revealResults">(
   `${window.location.origin}/zk-config/dataset`,
+  window.fetch.bind(window),
 );
-const registryZkConfigProvider = new FetchZkConfigProvider<"registerDataset">(`${window.location.origin}/zk-config/registry`);
+const registryZkConfigProvider = new FetchZkConfigProvider<"registerDataset">(
+  `${window.location.origin}/zk-config/registry`,
+  window.fetch.bind(window),
+);
 
 const datasetCompiledContract = CompiledContract.make<InstanceType<typeof DatasetContract<OrgPrivateState>>>(
   "cohortDataset",
   DatasetContract,
-).pipe(CompiledContract.withWitnesses(witnesses), CompiledContract.withCompiledFileAssets("dataset"));
+).pipe(CompiledContract.withWitnesses(witnesses), CompiledContract.withCompiledFileAssets(`${window.location.origin}/zk-config/dataset`));
 const registryCompiledContract = CompiledContract.make("cohortRegistry", RegistryContract).pipe(
   CompiledContract.withVacantWitnesses,
-  CompiledContract.withCompiledFileAssets("registry"),
+  CompiledContract.withCompiledFileAssets(`${window.location.origin}/zk-config/registry`),
 );
 
 export async function deployNewDataset(walletProvider: MidnightWalletProvider, schemaSlug: string): Promise<string> {
